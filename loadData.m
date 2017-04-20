@@ -53,3 +53,5 @@ session = IEEGSession('I521_A0014_D003', 'shashank', 'sha_ieeglogin.bin');
 n_samples = 147500;
 n_chan = 64;
 sub3_ecog_test = session.data.getvalues(1:n_samples, 1:n_chan);
+
+save('data', 'sub1_ecog', 'sub1_ecog_test', 'sub1_glove', 'sub2_ecog', 'sub2_ecog_test', 'sub2_glove', 'sub3_ecog', 'sub3_ecog_test', 'sub3_glove')
