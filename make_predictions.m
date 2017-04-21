@@ -15,7 +15,9 @@ function [predicted_dg] = make_predictions(test_ecog)
 % Imagine this mat file has the following variables:
 % winDisp, filtTPs, trainFeats (cell array), 
 
-load team_awesome_model.mat 
+load('../team_awesome_model.mat')
+load('../data.mat')
+load('../test_features.mat')
 
 %load weights for each subject and each finger
 %w is a 3 x 5 cell array, containing the weights for each subject per row,
@@ -27,20 +29,23 @@ predicted_dg = cell(3,1);
 
 %for each subject
 for subj = 1:3 
-    
+    yhat_int = [];
     %get the testing ecog
     testset = test_ecog{subj}; 
-    
+
     %initialize the predicted dataglove matrix
     yhat = zeros(size(testset,1),5);
     
     %for each finger
-    for i = 1:5 
-        
+    for finger = 1:5 
         %predict dg based on ECOG for each finger
-        yhat(:,i) = testset(:,i)*w{subj,i} + intercept{subj,i};
-        
+        yhat(:,finger) = testset * models{subj,finger}.weights + models{subj,finger}.info.Intercept;
+        yhat_int(:,finger) = spline(1:length(yhat(:,finger)), yhat(:,finger)', linspace(1,length(yhat(:,finger)),147500));
     end
-    predicted_dg{subj} = yhat;
+    predicted_dg{subj} = yhat_int;
+     
 end
 
+save('predictions', 'predicted_dg')
+
+end

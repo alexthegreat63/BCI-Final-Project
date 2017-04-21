@@ -14,14 +14,16 @@ step_samples = step_size / 1000 * sample_rate;
 num_windows = floor((length(data) - window_samples) / step_samples + 1);
 
 if mod((length(data) - window_samples), step_samples) ~= 0
-    data = [data; zeros(mod((length(data) - window_samples), step_samples))];
+    data = [data; zeros(mod((length(data) - window_samples), step_samples), 1)];
 end
 
-windows = data(1:window_samples);
+windows = zeros(window_samples, num_windows);
+windows(:,1) = data(1:window_samples);
 start = step_samples + 1;
 stop = window_samples + step_samples;
-for i = 1:num_windows-1
-    windows = horzcat(windows, data(start:stop));
+for i = 2:num_windows
+%     windows(:,i) = conv(data(start:stop), ones(window_samples, 1), 'same');
+    windows(:,i) = data(start:stop);
     start = start + step_samples;
     stop = stop + step_samples;
 end
