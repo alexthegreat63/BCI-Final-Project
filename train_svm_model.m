@@ -1,4 +1,4 @@
-function [mdl, mdl_info, lambda, best_acc, best_acc_idx] = train_lasso_model(X, Y, lambda_range, num_folds)
+function [mdl, mdl_info, lambda, best_acc, best_acc_idx] = train_svm_model(X, Y, lambda_range, num_folds)
 
 cv_idx = mod(randperm(size(X,1)), num_folds) + 1;
 acc_hist = [];

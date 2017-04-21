@@ -63,12 +63,22 @@ X_test = X(1:999,:);
 Y_test = Y(1:999);
 [mdl_best, info_best] = lasso(X_train, Y_train, 'Lambda', info.Lambda(best_acc_idx));
 Y_pred = X_test * mdl_best + repmat(info_best.Intercept, size(X_test,1), 1);
-acc = corr(Y_pred, Y_test);
+acc = corr(Y_pred, Y_test)
 
-interpolated = spline(1:999, Y_pred, linspace(1,999,49950));
-corr(interpolated', sub1_glove(1:49950,1))
+interpolated = spline(1:999, Y_pred, linspace(1,999,49950-100));
+interpolated_padded = [zeros(1,100), interpolated];
+corr(interpolated_padded', sub1_glove(1:49950,1))
+
+%% Interpolation with zero padding
+[mdl_best, info_best] = lasso(X, Y(2:end), 'Lambda', info.Lambda(best_acc_idx));
+Y_pred = X * mdl_best + info_best.Intercept;
+acc = corr(Y_pred, Y(2:end))
+
+interpolated = spline(1:length(Y_pred), Y_pred, linspace(1,length(Y_pred),310000-100));
+interpolated_padded = [zeros(1,75), interpolated, zeros(1,25)];
+corr(interpolated_padded', sub1_glove(:,1))
 
 %%
-plot(Y_pred(:,best_acc_idx))
+plot(Y_pred ,'r')
 hold on
-plot(Y_test)
+plot(Y, 'b')
