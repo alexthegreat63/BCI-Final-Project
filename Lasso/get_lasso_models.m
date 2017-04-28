@@ -14,12 +14,12 @@ num_channels_sub2 = 48;
 num_channels_sub3 = 64;
 
 %% Extract features
-window_size = 100; %ms
-step_size = 50; %ms
-sub_sample_rate = 50;
+window_size = 80; %ms
+step_size = 40; %ms
+sub_sample_rate = 40;
 
-[X1, Y1] = get_features(sub1_ecog, sub1_glove, window_size, step_size, sample_rate, num_channels_sub1, sub_sample_rate);
-[X2, Y2] = get_features(sub2_ecog, sub2_glove, window_size, step_size, sample_rate, num_channels_sub2, sub_sample_rate);
+[X1, Y1] = get_features(sub1_ecog(:,[1:num_channels_sub1]~= 55), sub1_glove, window_size, step_size, sample_rate, num_channels_sub1-1, sub_sample_rate);
+[X2, Y2] = get_features(sub2_ecog(:,[1:num_channels_sub2]~= 21 & [1:num_channels_sub2]~= 38), sub2_glove, window_size, step_size, sample_rate, num_channels_sub2-2, sub_sample_rate);
 [X3, Y3] = get_features(sub3_ecog, sub3_glove, window_size, step_size, sample_rate, num_channels_sub3, sub_sample_rate);
   
 %% Cross Validate and Train Models
