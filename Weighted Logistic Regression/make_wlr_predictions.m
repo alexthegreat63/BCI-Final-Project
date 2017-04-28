@@ -15,10 +15,10 @@ function [predicted_dg] = make_wlr_predictions(test_ecog)
 % Imagine this mat file has the following variables:
 % winDisp, filtTPs, trainFeats (cell array), 
 
-load('../../team_awesome_model_lasso.mat')
+load('team_awesome_model_lasso.mat')
 load('../../data.mat')
-load('../../test_features.mat')
-load('../../lr_predictions.mat')
+load('test_features.mat')
+load('lr_predictions.mat')
 
 %load weights for each subject and each finger
 %w is a 3 x 5 cell array, containing the weights for each subject per row,
@@ -27,7 +27,7 @@ load('../../lr_predictions.mat')
 % Predict using linear predictor for each subject
 %create cell array with one element for each subject
 predicted_dg = cell(3,1);
-
+finger_ss = [0.01;0.01;0.1;0.01;0.01];
 %for each subject
 for subj = 1:3 
     yhat_int = [];
@@ -44,8 +44,12 @@ for subj = 1:3
         yhat(:,finger) = testset * models{subj,finger}.weights + models{subj,finger}.info.Intercept;
         y_hat(:,finger) = [0; yhat(1:end-1,finger)];
         yhat(:,finger) = yhat(:,finger) .* yhat_lr{subj}(:,finger);
+        lms = dsp.LMSFilter('Length',32,'StepSize',finger_ss(finger));
+       des =yhat(:,finger) ;
+       des(yhat(:,finger)<0.1) = 0;
+       yhat(:,finger) = step(lms,yhat(:,finger),des);
         yhat_int(:,finger) = spline(1:length(yhat(:,finger)), yhat(:,finger)', linspace(1,length(yhat(:,finger)),147500-80));
-        yhat_int_padded(:,finger) = [zeros(120,1); yhat_int(1:end-40,finger)];
+        yhat_int_padded(:,finger) = [zeros(140,1); yhat_int(1:end-60,finger)];
     end
     predicted_dg{subj} = yhat_int_padded;
      

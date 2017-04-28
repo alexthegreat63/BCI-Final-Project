@@ -4,7 +4,7 @@ close all
 
 %% Load data
 load('../../data.mat');
-load('../../test_features.mat')
+load('test_features.mat')
 sample_rate = 1000;
 dur = 310000 / sample_rate;
 dur_test = 147500 / sample_rate;
@@ -27,6 +27,7 @@ sub_sample_rate = 40;
 X_all = {X1, X2, X3};
 Y_all = {Y1, Y2, Y3};
 yhat = cell(3,1);
+
 for sub = 1:3
     X = X_all{sub}(:, 1:end-1);
     for finger = 1:5
@@ -41,7 +42,10 @@ for sub = 1:3
         alpha = 1;
 %         options = statset('maxiter', 1000);
         mdl = glmfit(X, Y, 'binomial');
-        yhat_lr{sub}(:,finger) = glmval(mdl, test_ecog{sub}(:,1:end-1), 'logit').^alpha;
+       % yhat_lr{sub}(:,finger) = glmval(mdl, test_ecog{sub}(:,1:end-1), 'logit').^alpha;
+          yhat_lr{sub}(:,finger)= glmval(mdl, test_ecog{sub}(:,1:end-1), 'logit').^alpha;
+        % adapative filtering 
+        
     end
 end
 

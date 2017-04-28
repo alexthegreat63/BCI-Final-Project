@@ -9,15 +9,17 @@ dur = 310000 / sample_rate;
 dur_test = 147500 / sample_rate;
 t_train = linspace(0, dur, 310000);
 t_test = linspace(0, dur_test, 147500);
-num_channels = 62;
+num_channels_sub1 = 62;
+num_channels_sub2 = 48;
 
 %% Extract Features
 window_size = 80; %ms
 step_size = 40; %ms
 sub_sample_rate = 40;
 
-[X, Y] = get_features(sub1_ecog(:,[1:num_channels] ~= 55), sub1_glove, window_size, step_size, sample_rate, num_channels-1, sub_sample_rate);
-Y = Y(:,2);
+[X, Y] = get_features(sub1_ecog(:,[1:num_channels_sub1]~= 55), sub1_glove, window_size, step_size, sample_rate, num_channels_sub1-1, sub_sample_rate);
+%[X, Y] = get_features(sub2_ecog(:,[1:num_channels_sub2]~= 21 & [1:num_channels_sub2]~= 38), sub2_glove, window_size, step_size, sample_rate, num_channels_sub2-2, sub_sample_rate);
+Y = Y(:,1);
 
 %% Cross Validation
 num_folds = 10;
@@ -66,13 +68,23 @@ alpha = 1;
 mdl_lr = glmfit(X_train_lr, Y_train_lr, 'binomial');
 Y_pred_lr = glmval(mdl_lr, X(:,1:end-1), 'logit').^alpha;
 
-Y_pred = Y_pred_lasso .* Y_pred_lr(1:test_size);
-corr(Y_pred, Y_test)
+Y_pred = [0; Y_pred_lasso(1:end-1)] .* Y_pred_lr(1:test_size);
+corr(Y_pred, Y_test);
 
+%% initalise the LSM adaptive filter
+ 
+lms = dsp.LMSFilter('Length',32,'StepSize',0.01);
+des = Y_pred;
+des(Y_pred<0.1) = 0;
+% create the desired output using 12 order lowpass filter
+%[b,err,res] = fircband(12,[0 0.4 0.5 1],[1 1 0 0],[1 0.2],{'w','c'});
+%des =  filter(b,1,Y_pred);
+Y_filt_pred = step(lms,Y_pred,des);
+acc_filt = corr(Y_filt_pred,Y_test);
 %% Interpolate
-interpolated = spline(1:test_size, Y_pred, linspace(1,test_size,test_size*sub_sample_rate-80));
-interpolated_padded = [zeros(1,120), interpolated(1:end-40)];
-acc_interp = corr(interpolated_padded', sub1_glove(1:test_size*sub_sample_rate,2))
+interpolated = spline(1:test_size, Y_filt_pred, linspace(1,test_size,test_size*sub_sample_rate-80));
+interpolated_padded = [zeros(1,80), interpolated(1:end)];
+acc_interp = corr(interpolated_padded', sub1_glove(1:test_size*sub_sample_rate,1))
 
 %%
 plot(Y_pred ,'r')
@@ -83,4 +95,4 @@ plot(Y_test, 'b')
 figure
 plot(interpolated_padded, 'r')
 hold on
-plot(sub1_glove(1:test_size*sub_sample_rate,1))
+plot(sub2_glove(1:test_size*sub_sample_rate,1))

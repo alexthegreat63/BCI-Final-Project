@@ -16,6 +16,7 @@ for i = 1:num_channels
     X(:,(i-1)*num_feats + 5) = bandpower(windows, sample_rate, [75  115])';
     X(:,(i-1)*num_feats + 6) = bandpower(windows, sample_rate, [125 160])';
     X(:,(i-1)*num_feats + 7) = bandpower(windows, sample_rate, [160 175])';
+    
 end
 
 X = horzcat(X, ones(size(X,1),1));
