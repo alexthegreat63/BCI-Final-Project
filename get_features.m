@@ -1,7 +1,7 @@
 function [ X, Y ] = get_features( sub_ecog, sub_glove, window_size, step_size, sample_rate, num_channels, sub_sample_rate )
 
 num_windows = floor((size(sub_ecog,1) - window_size) / step_size + 1);
-num_feats = 7;
+num_feats = 11;
 X = zeros(num_windows, num_channels * num_feats);
 
 % Remove the CAR
@@ -16,7 +16,14 @@ for i = 1:num_channels
     X(:,(i-1)*num_feats + 5) = bandpower(windows, sample_rate, [75  115])';
     X(:,(i-1)*num_feats + 6) = bandpower(windows, sample_rate, [125 160])';
     X(:,(i-1)*num_feats + 7) = bandpower(windows, sample_rate, [160 175])';
+<<<<<<< Updated upstream
     
+=======
+    X(:,(i-1)*num_feats + 8) = LLFn(windows)';
+    X(:,(i-1)*num_feats + 9) = AFn(windows)';
+    X(:,(i-1)*num_feats + 10) = EFn(windows)';
+    X(:,(i-1)*num_feats + 11) = ZXFn(windows)';
+>>>>>>> Stashed changes
 end
 
 X = horzcat(X, ones(size(X,1),1));
