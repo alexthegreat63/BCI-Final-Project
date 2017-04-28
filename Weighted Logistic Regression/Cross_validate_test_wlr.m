@@ -12,9 +12,9 @@ t_test = linspace(0, dur_test, 147500);
 num_channels = 62;
 
 %% Extract Features
-window_size = 100; %ms
-step_size = 50; %ms
-sub_sample_rate = 50;
+window_size = 80; %ms
+step_size = 40; %ms
+sub_sample_rate = 40;
 
 [X, Y] = get_features(sub1_ecog, sub1_glove, window_size, step_size, sample_rate, num_channels, sub_sample_rate);
 Y = Y(:,1);
@@ -47,11 +47,11 @@ X_test = X(1:999,:);
 Y_test = Y(1:999);
 [mdl_best, info_best] = lasso(X_train, Y_train, 'Lambda', info.Lambda(best_acc_idx));
 Y_pred = X_test * mdl_best + repmat(info_best.Intercept, size(X_test,1), 1);
-acc = corr(Y_pred, Y_test)
+acc = corr([0; Y_pred(1:end-1)], Y_test)
 
-interpolated = spline(1:999, Y_pred, linspace(1,999,49950-100));
-interpolated_padded = [zeros(1,150), interpolated(1:end-50)];
-acc_interp = corr(interpolated_padded', sub1_glove(1:49950,1))
+interpolated = spline(1:999, Y_pred, linspace(1,999,999*sub_sample_rate-80));
+interpolated_padded = [zeros(1,120), interpolated(1:end-40)];
+acc_interp = corr(interpolated_padded', sub1_glove(1:999*sub_sample_rate,1))
 
 %%
 plot(Y_pred ,'r')
@@ -62,4 +62,4 @@ plot(Y_test, 'b')
 figure
 plot(interpolated_padded, 'r')
 hold on
-plot(sub1_glove(1:49950,1))
+plot(sub1_glove(1:999*sub_sample_rate,1))
