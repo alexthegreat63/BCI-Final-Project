@@ -9,16 +9,16 @@ dur = 310000 / sample_rate;
 dur_test = 147500 / sample_rate;
 t_train = linspace(0, dur, 310000);
 t_test = linspace(0, dur_test, 147500);
-num_channels_sub1 = 62;
-num_channels_sub2 = 48;
+num_channels = 62;
+% num_channels = 48;
 
 %% Extract Features
 window_size = 80; %ms
 step_size = 40; %ms
 sub_sample_rate = 40;
 
-[X, Y] = get_features(sub1_ecog(:,[1:num_channels_sub1]~= 55), sub1_glove, window_size, step_size, sample_rate, num_channels_sub1-1, sub_sample_rate);
-%[X, Y] = get_features(sub2_ecog(:,[1:num_channels_sub2]~= 21 & [1:num_channels_sub2]~= 38), sub2_glove, window_size, step_size, sample_rate, num_channels_sub2-2, sub_sample_rate);
+[X, Y] = get_features(sub1_ecog(:,[1:num_channels] ~= 55), sub1_glove, window_size, step_size, sample_rate, num_channels-1, sub_sample_rate);
+% [X, Y] = get_features(sub2_ecog(:,[1:num_channels] ~= 21 & [1:num_channels] ~= 38), sub2_glove, window_size, step_size, sample_rate, num_channels-2, sub_sample_rate);
 Y = Y(:,1);
 
 %% Cross Validation
@@ -53,8 +53,8 @@ Y_pred_lasso = X_test * mdl_best + repmat(info_best.Intercept, size(X_test,1), 1
 acc = corr([0; Y_pred_lasso(1:end-1)], Y_test)
 
 %% Train Logistic Regression
-X_train_lr = X(:,1:end-1);
-Y_train_lr = Y > 1.4;
+X_train_lr = X_train(:,1:end-1);
+Y_train_lr = Y_train > 1.4;
 for i = 1:size(Y_train_lr,1)-100
     if Y_train_lr(i) == 1
         idx = find(Y_train_lr(i:i+100), 1, 'last');
@@ -66,10 +66,10 @@ alpha = 1;
 % options = statset('maxiter', 500);
 % mdl_lr = glmfit(X_train_lr, Y_train_lr, 'binomial', 'Options', options);
 mdl_lr = glmfit(X_train_lr, Y_train_lr, 'binomial');
-Y_pred_lr = glmval(mdl_lr, X(:,1:end-1), 'logit').^alpha;
+Y_pred_lr = glmval(mdl_lr, X_test(:,1:end-1), 'logit').^alpha;
 
-Y_pred = [0; Y_pred_lasso(1:end-1)] .* Y_pred_lr(1:test_size);
-corr(Y_pred, Y_test);
+Y_pred = Y_pred_lasso .* Y_pred_lr;
+corr(Y_pred, Y_test)
 
 %% initalise the LSM adaptive filter
  
@@ -83,7 +83,7 @@ Y_filt_pred = step(lms,Y_pred,des);
 acc_filt = corr(Y_filt_pred,Y_test);
 %% Interpolate
 interpolated = spline(1:test_size, Y_filt_pred, linspace(1,test_size,test_size*sub_sample_rate-80));
-interpolated_padded = [zeros(1,80), interpolated(1:end)];
+interpolated_padded = [zeros(1,140), interpolated(1:end-60)];
 acc_interp = corr(interpolated_padded', sub1_glove(1:test_size*sub_sample_rate,1))
 
 %%
