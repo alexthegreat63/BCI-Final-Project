@@ -1,4 +1,4 @@
-function [mdl, mdl_info, lambda, best_acc, best_acc_idx] = train_svm_model(X, Y, lambda_range, num_folds)
+function [mdl, mdl_info, lambda, best_acc, best_acc_idx] = train_lasso_model(X, Y, lambda_range, num_folds)
 
 cv_idx = mod(randperm(size(X,1)), num_folds) + 1;
 acc_hist = [];
@@ -11,8 +11,8 @@ for i = 1:num_folds
     
     [mdl, info] = lasso(X_train, Y_train, 'Lambda', lambda_range);
     Y_pred = X_test * mdl + repmat(info.Intercept, size(X_test,1), 1);
-    acc = corr(Y_pred, Y_test);
     
+    acc = corr(Y_pred, Y_test);
     acc_hist(:,i) = acc;
 end
 

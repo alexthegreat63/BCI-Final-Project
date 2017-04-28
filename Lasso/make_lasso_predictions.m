@@ -1,4 +1,4 @@
-function [predicted_dg] = make_predictions(test_ecog)
+function [predicted_dg] = make_lasso_predictions(test_ecog)
 
 %
 % Inputs: test_ecog - 3 x 1 cell array containing ECoG for each subject, where test_ecog{i} 
@@ -15,9 +15,9 @@ function [predicted_dg] = make_predictions(test_ecog)
 % Imagine this mat file has the following variables:
 % winDisp, filtTPs, trainFeats (cell array), 
 
-load('../team_awesome_model1.mat')
-load('../data.mat')
-load('../test_features.mat')
+load('../../team_awesome_model_zeroed.mat')
+load('../../data.mat')
+load('../../test_features.mat')
 
 %load weights for each subject and each finger
 %w is a 3 x 5 cell array, containing the weights for each subject per row,
@@ -41,6 +41,7 @@ for subj = 1:3
     for finger = 1:5 
         %predict dg based on ECOG for each finger
         yhat(:,finger) = testset * models{subj,finger}.weights + models{subj,finger}.info.Intercept;
+        yhst(yhat(:,finger)<0.5, finger) = 0;
         yhat_int(:,finger) = spline(1:length(yhat(:,finger)), yhat(:,finger)', linspace(1,length(yhat(:,finger)),147500-100));
         yhat_int_padded(:,finger) = [zeros(100,1); yhat_int(:,finger)];
     end
@@ -48,6 +49,6 @@ for subj = 1:3
      
 end
 
-save('predictions1_2', 'predicted_dg')
+save('predictions1_zeroed', 'predicted_dg')
 
 end
