@@ -71,7 +71,7 @@ corr(Y_pred, Y_test)
 %% Interpolate
 interpolated = spline(1:999, Y_pred, linspace(1,999,999*sub_sample_rate-80));
 interpolated_padded = [zeros(1,120), interpolated(1:end-40)];
-acc_interp = corr(interpolated_padded', sub1_glove(1:999*sub_sample_rate,3))
+acc_interp = corr(interpolated_padded', sub1_glove(1:999*sub_sample_rate,4))
 
 %%
 plot(Y_pred ,'r')

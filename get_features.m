@@ -27,7 +27,7 @@ else
         decimate(sub_glove(:,3), sub_sample_rate), ...
         decimate(sub_glove(:,4), sub_sample_rate), ...
         decimate(sub_glove(:,5), sub_sample_rate)];
-    Y = Y(1:end-1,:);
+    Y = Y(2:end,:);
 end
 
 end
