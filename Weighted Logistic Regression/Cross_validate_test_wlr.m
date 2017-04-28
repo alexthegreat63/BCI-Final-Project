@@ -17,7 +17,7 @@ step_size = 40; %ms
 sub_sample_rate = 40;
 
 [X, Y] = get_features(sub1_ecog(:,[1:num_channels] ~= 55), sub1_glove, window_size, step_size, sample_rate, num_channels-1, sub_sample_rate);
-Y = Y(:,5);
+Y = Y(:,2);
 
 %% Cross Validation
 num_folds = 10;
@@ -66,13 +66,13 @@ alpha = 1;
 mdl_lr = glmfit(X_train_lr, Y_train_lr, 'binomial');
 Y_pred_lr = glmval(mdl_lr, X(:,1:end-1), 'logit').^alpha;
 
-Y_pred = Y_pred_lasso .* Y_pred_lr(1:999);
+Y_pred = Y_pred_lasso .* Y_pred_lr(1:test_size);
 corr(Y_pred, Y_test)
 
 %% Interpolate
 interpolated = spline(1:test_size, Y_pred, linspace(1,test_size,test_size*sub_sample_rate-80));
 interpolated_padded = [zeros(1,120), interpolated(1:end-40)];
-acc_interp = corr(interpolated_padded', sub1_glove(1:test_size*sub_sample_rate,5))
+acc_interp = corr(interpolated_padded', sub1_glove(1:test_size*sub_sample_rate,2))
 
 %%
 plot(Y_pred ,'r')
