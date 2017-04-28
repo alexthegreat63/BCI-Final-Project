@@ -4,6 +4,9 @@ num_windows = floor((size(sub_ecog,1) - window_size) / step_size + 1);
 num_feats = 7;
 X = zeros(num_windows, num_channels * num_feats);
 
+% Remove the CAR
+sub_ecog = sub_ecog - mean(mean(sub_ecog));
+
 for i = 1:num_channels
     windows = make_windows(sub_ecog(:,i), sample_rate, window_size, step_size) * 1e-3;
     X(:,(i-1)*num_feats + 1) = mean(windows)';
