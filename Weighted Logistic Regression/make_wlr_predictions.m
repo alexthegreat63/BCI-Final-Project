@@ -45,7 +45,7 @@ for subj = 1:3
         y_hat(:,finger) = [0; yhat(1:end-1,finger)];
         yhat(:,finger) = yhat(:,finger) .* yhat_lr{subj}(:,finger);
         yhat_int(:,finger) = spline(1:length(yhat(:,finger)), yhat(:,finger)', linspace(1,length(yhat(:,finger)),147500-80));
-        yhat_int_padded(:,finger) = [zeros(120,1); yhat_int(1:end-40,finger)];
+        yhat_int_padded(:,finger) = [zeros(80,1); yhat_int(1:end,finger)];
     end
     predicted_dg{subj} = yhat_int_padded;
      
