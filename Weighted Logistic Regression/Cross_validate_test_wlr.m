@@ -18,8 +18,12 @@ step_size = 40; %ms
 sub_sample_rate = 40;
 
 [X, Y] = get_features(sub1_ecog(:,[1:num_channels] ~= 55), sub1_glove, window_size, step_size, sample_rate, num_channels-1, sub_sample_rate);
+<<<<<<< HEAD
 % [X, Y] = get_features(sub2_ecog(:,[1:num_channels] ~= 21 & [1:num_channels] ~= 38), sub2_glove, window_size, step_size, sample_rate, num_channels-2, sub_sample_rate);
 Y = Y(:,1);
+=======
+Y = Y(:,2);
+>>>>>>> origin/master
 
 %% Cross Validation
 num_folds = 10;
